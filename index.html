@@ -542,6 +542,24 @@
         margin-top: 12px;
       }
     }
+
+    .hdr-tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .sync-pill{font-size:12px;font-weight:650;padding:7px 12px;border-radius:999px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);color:#fff}
+    .sync-pill.ok{background:rgba(34,197,94,.3)}.sync-pill.err{background:rgba(239,68,68,.4)}.sync-pill.busy{background:rgba(250,204,21,.3)}
+    .stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:14px}
+    .stat{background:var(--input-bg);border:1px solid var(--panel-border);border-radius:12px;padding:10px 12px}
+    .stat b{display:block;font-size:22px;color:var(--btn-primary)}.stat span{font-size:12px;color:var(--muted)}
+    .search-row{margin-top:12px}
+    .prog{width:100%;height:6px;border-radius:99px;background:var(--table-border);overflow:hidden}
+    .prog i{display:block;height:100%;background:linear-gradient(90deg,#efb92b,#16a34a);border-radius:99px;transition:width .4s ease}
+    .tabs-bar{position:sticky;top:0;z-index:20;background:var(--bg);padding-top:8px}
+    .chick-card{animation:pop .25s ease both}
+    @keyframes pop{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+    .tab-btn:hover{filter:brightness(1.06)}button:active{transform:scale(.97)}
+    :focus-visible{outline:3px solid #efb92b;outline-offset:2px}
+    tbody tr:hover td{background:var(--table-th)}
+    @media (max-width:680px){.stats{grid-template-columns:1fr 1fr}}
+    @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
   </style>
 </head>
 <body>
@@ -550,10 +568,11 @@
       <h1>🐣 Pollitopromo</h1>
       <p>Carné digital de crecimiento y desarrollo · 30 días, una gran responsabilidad</p>
     </div>
+    <div class="hdr-tools"><span id="syncPill" class="sync-pill">☁️ Sin conectar</span><button id="syncBtn" class="theme-btn" type="button">🔄 Sincronizar</button><button id="cfgBtn" class="theme-btn" type="button" aria-label="Configurar Supabase">⚙️</button>
     <button id="themeToggle" class="theme-btn" type="button" aria-label="Cambiar tema">
       <span id="themeIcon">🌙</span>
       <span id="themeText">Modo oscuro</span>
-    </button>
+    </button></div>
   </header>
 
   <main class="wrap">
@@ -600,6 +619,8 @@
         <button class="secondary" id="toggleCardsBtn" type="button">Ver / Ocultar tarjetas del salón</button>
       </div>
 
+      <div id="statsBar" class="stats"></div>
+      <div class="field search-row"><input id="search" type="search" placeholder="🔍 Buscar por nombre, curso o responsables…" aria-label="Buscar pollitos"></div>
       <div id="cardsContainer" class="cards-grid"></div>
     </section>
 
@@ -744,7 +765,7 @@
     </section>
   </main>
 
-  <div class="foot">Pollitopromo · Recurso educativo local · Los datos se guardan automáticamente en este navegador</div>
+  <div class="foot">Pollitopromo · Recurso educativo local · Los datos se guardan en este navegador y se sincronizan con Supabase cuando hay conexión</div>
 
   <div id="toastBox" class="toast-box" aria-live="polite"></div>
 
@@ -756,6 +777,16 @@
         <button type="button" class="secondary" id="confirmCancel">Cancelar</button>
         <button type="button" class="danger" id="confirmOk">Confirmar</button>
       </div>
+    </div>
+  </div>
+
+  <div id="cfgModal" class="modal-backdrop" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true">
+      <h3>☁️ Conexión a Supabase</h3>
+      <p class="muted">Pega la URL del proyecto (Project Settings → API), p. ej. https://abcdxyz.supabase.co, o solo su ID.</p>
+      <div class="field"><label for="cfgUrl">URL del proyecto</label><input id="cfgUrl" placeholder="https://xxxx.supabase.co"></div>
+      <div class="field" style="margin-top:10px"><label for="cfgKey">Clave publicable</label><input id="cfgKey"></div>
+      <div class="modal-actions"><button type="button" class="secondary" id="cfgCancel">Cancelar</button><button type="button" id="cfgSave">Guardar y sincronizar</button></div>
     </div>
   </div>
 
@@ -943,6 +974,7 @@
     function persist(showNotice = false) {
       try {
         localStorage.setItem(KEY, JSON.stringify(db));
+        schedule();
         if ($('status')) {
           $('status').textContent = 'Guardado automáticamente ✓';
         }
@@ -1029,9 +1061,10 @@
       const container = $('cardsContainer');
       container.replaceChildren();
       $('totalCount').textContent = String(db.length);
+      renderStats();
       container.hidden = !showCards || db.length === 0;
 
-      db.forEach(item => {
+      filtered().forEach(item => {
         const card = document.createElement('div');
         card.className = 'chick-card' + (item.id === active ? ' active-card' : '');
 
@@ -1072,7 +1105,11 @@
         badgeWeight.className = 'badge';
         badgeWeight.textContent = lastCtrl ? `Último: ${lastCtrl.weight} g (Día ${lastCtrl.day})` : 'Sin pesaje aún';
 
-        stats.append(badgeCount, badgeWeight);
+        const prog = document.createElement('div');
+        prog.className = 'prog';
+        prog.title = 'Avance del proyecto';
+        prog.innerHTML = '<i style="width:' + Math.min(100, (lastCtrl ? Number(lastCtrl.day) : 0) / 30 * 100) + '%"></i>';
+        stats.append(badgeCount, badgeWeight, prog);
 
         const btnRow = document.createElement('div');
         btnRow.style.display = 'flex';
@@ -1618,6 +1655,178 @@
       }
     };
 
+
+    // ===== Búsqueda y estadísticas =====
+    let q = '';
+    function filtered() {
+      const s = q.toLowerCase();
+      return s ? db.filter(x => [x.name, x.group, x.parents].join(' ').toLowerCase().includes(s)) : db;
+    }
+    function renderStats() {
+      const last = db.filter(x => x.controls.length).map(x => Number(x.controls[x.controls.length - 1].weight));
+      const avg = last.length ? (last.reduce((a, b) => a + b, 0) / last.length).toFixed(1) + ' g' : '—';
+      const ctrls = db.reduce((a, x) => a + x.controls.length, 0);
+      const none = db.filter(x => !x.controls.length).length;
+      $('statsBar').innerHTML = `<div class="stat"><b>${db.length}</b><span>Pollitos</span></div><div class="stat"><b>${ctrls}</b><span>Controles</span></div><div class="stat"><b>${avg}</b><span>Peso promedio (último)</span></div><div class="stat"><b>${none}</b><span>Sin pesaje aún</span></div>`;
+    }
+    $('search').oninput = e => { q = e.target.value; renderCards(); };
+
+    $('chart').addEventListener('mousemove', e => {
+      const c = e.target, r = c.getBoundingClientRect(), mx = (e.clientX - r.left) * c.width / r.width;
+      let best = null, bd = 1e9;
+      (current()?.controls || []).forEach(p => {
+        const xx = 68 + (Math.min(30, Math.max(1, p.day)) - 1) / 29 * (c.width - 25 - 68);
+        const d = Math.abs(xx - mx);
+        if (d < bd) { bd = d; best = p; }
+      });
+      c.title = best && bd < 30 ? `Día ${best.day}: ${best.weight} g${best.length ? ' · ' + best.length + ' cm' : ''}` : '';
+    });
+
+    // ===== Sincronización con Supabase (REST, offline-first) =====
+    const SBK = 'pollitocare_sb_cfg_v1', SNAP = 'pollitocare_snap_v1';
+    const SB = { url: 'https://ckiwsvyuapeyjqwoulyn.supabase.co', key: 'sb_publishable_EEGTaqhps9tTN_l9EJoP8Q_NWccA-D_' };
+    let snap = {}, flushT = null, syncing = false;
+    try {
+      const c = JSON.parse(localStorage.getItem(SBK) || '{}');
+      SB.url = c.url || SB.url;
+      SB.key = c.key || SB.key;
+      snap = JSON.parse(localStorage.getItem(SNAP) || '{}');
+    } catch {}
+
+    function pill(s, t) {
+      const p = $('syncPill');
+      p.className = 'sync-pill ' + s;
+      p.textContent = ({ ok: '✅ ', busy: '⏳ ', err: '⚠️ ', off: '☁️ ' }[s] || '') + t;
+    }
+    function hsh(x) {
+      const { updatedAt, ...r } = x;
+      const s = JSON.stringify(r);
+      let h = 5381;
+      for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+      return h + ':' + s.length;
+    }
+    async function sb(path, opt = {}) {
+      const r = await fetch(SB.url + '/rest/v1/' + path, {
+        ...opt,
+        headers: { apikey: SB.key, 'Content-Type': 'application/json', ...(opt.headers || {}) }
+      });
+      const t = await r.text();
+      if (!r.ok) {
+        let m = '';
+        try { m = JSON.parse(t).message; } catch {}
+        throw Error(m || 'HTTP ' + r.status);
+      }
+      return t ? JSON.parse(t) : null;
+    }
+    const UP = { Prefer: 'resolution=merge-duplicates,return=minimal' };
+
+    async function pushRec(x) {
+      x.updatedAt = new Date().toISOString();
+      await sb('pollitos?on_conflict=id', { method: 'POST', headers: UP, body: JSON.stringify([{
+        id: x.id, nombre: x.name, fecha_inicio: x.start || null, responsables: x.parents || '',
+        equipo: x.team || '', grupo: x.group || '', responsable_final: x.finalPlan || '',
+        foto: x.photo || '', reflexion: x.reflection || '', updated_at: x.updatedAt
+      }]) });
+      const days = x.controls.map(c => c.day);
+      await sb('controles?pollito_id=eq.' + encodeURIComponent(x.id) + (days.length ? '&dia=not.in.(' + days.join(',') + ')' : ''), { method: 'DELETE' });
+      if (days.length) {
+        await sb('controles?on_conflict=pollito_id,dia', { method: 'POST', headers: UP, body: JSON.stringify(x.controls.map(c => ({
+          pollito_id: x.id, dia: c.day, peso: c.weight, longitud: c.length, estado: c.condition || '',
+          observador: c.observer || '', notas: c.notes || ''
+        }))) });
+      }
+    }
+
+    function schedule() {
+      if (!SB.url) return;
+      pill('busy', 'Cambios pendientes…');
+      clearTimeout(flushT);
+      flushT = setTimeout(flush, 1500);
+    }
+
+    async function flush() {
+      if (!SB.url || syncing) return;
+      if (!navigator.onLine) return pill('err', 'Sin conexión (se enviará luego)');
+      syncing = true;
+      pill('busy', 'Sincronizando…');
+      try {
+        for (const x of db) {
+          if (snap[x.id] !== hsh(x)) { await pushRec(x); snap[x.id] = hsh(x); }
+        }
+        for (const id of Object.keys(snap)) {
+          if (!db.some(x => x.id === id)) {
+            await sb('pollitos?id=eq.' + encodeURIComponent(id), { method: 'DELETE' });
+            delete snap[id];
+          }
+        }
+        localStorage.setItem(SNAP, JSON.stringify(snap));
+        try { localStorage.setItem(KEY, JSON.stringify(db)); } catch {}
+        pill('ok', 'Sincronizado ' + new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }));
+      } catch (e) {
+        pill('err', 'Error: ' + e.message);
+      }
+      syncing = false;
+    }
+
+    async function pull() {
+      const rows = await sb('pollitos?select=*,controles(*)&order=created_at.asc');
+      const remote = new Set(rows.map(r => r.id));
+      for (const r of rows) {
+        const rec = sanitizeRecord({
+          id: r.id, name: r.nombre, start: r.fecha_inicio || '', parents: r.responsables || '', team: r.equipo || '',
+          group: r.grupo || '', finalPlan: r.responsable_final || '', photo: r.foto || '', reflection: r.reflexion || '',
+          updatedAt: r.updated_at,
+          controls: (r.controles || []).map(c => ({
+            day: c.dia, weight: Number(c.peso), length: c.longitud == null ? null : Number(c.longitud),
+            condition: c.estado || '', observer: c.observador || '', notes: c.notas || ''
+          }))
+        });
+        const loc = db.find(x => x.id === r.id);
+        if (!loc) {
+          if (!(r.id in snap)) { db.push(rec); snap[r.id] = hsh(rec); }
+        } else if (snap[r.id] === hsh(loc) && (loc.updatedAt || '') < r.updated_at) {
+          Object.assign(loc, rec);
+          snap[r.id] = hsh(loc);
+        }
+      }
+      db = db.filter(x => remote.has(x.id) || !(x.id in snap) || snap[x.id] !== hsh(x));
+      try { localStorage.setItem(KEY, JSON.stringify(db)); localStorage.setItem(SNAP, JSON.stringify(snap)); } catch {}
+      selectList(true);
+      select(db.some(x => x.id === active) ? active : (db[0] ? db[0].id : null), true);
+    }
+
+    async function syncNow() {
+      if (!SB.url) return $('cfgBtn').click();
+      if (!navigator.onLine) return pill('err', 'Sin conexión');
+      pill('busy', 'Descargando…');
+      try {
+        await pull();
+        await flush();
+      } catch (e) {
+        pill('err', 'Error: ' + e.message);
+        notify('Supabase: ' + e.message, 'error');
+      }
+    }
+
+    $('syncBtn').onclick = syncNow;
+    $('cfgBtn').onclick = () => { $('cfgUrl').value = SB.url; $('cfgKey').value = SB.key; $('cfgModal').hidden = false; $('cfgUrl').focus(); };
+    $('cfgCancel').onclick = () => { $('cfgModal').hidden = true; };
+    $('cfgSave').onclick = async () => {
+      let u = $('cfgUrl').value.trim().replace(/\/+$/, '').replace(/\/rest\/v1$/, '');
+      if (/^[a-z0-9]{15,25}$/i.test(u)) u = 'https://' + u + '.supabase.co';
+      if (u && !/^https?:\/\//.test(u)) u = 'https://' + u;
+      SB.url = u;
+      SB.key = $('cfgKey').value.trim() || SB.key;
+      try { localStorage.setItem(SBK, JSON.stringify({ url: SB.url, key: SB.key })); } catch {}
+      $('cfgModal').hidden = true;
+      if (!SB.url) return pill('off', 'Sin conectar');
+      await syncNow();
+    };
+    window.addEventListener('online', () => SB.url && syncNow());
+    document.addEventListener('visibilitychange', () => { if (!document.hidden && SB.url && !syncing) syncNow(); });
+    setInterval(() => { if (SB.url && !syncing && !document.hidden) syncNow(); }, 60000);
+    if (!SB.url) pill('off', 'Sin conectar');
+
     // Inicialización: carga datos, aplica tema y restaura el último carné activo, pestaña y borradores
     load();
     initTheme();
@@ -1638,6 +1847,7 @@
       select(null);
     }
     restoreDrafts();
+    if (SB.url) syncNow();
   </script>
 </body>
 </html>
