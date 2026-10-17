@@ -543,6 +543,7 @@
       }
     }
 
+    #cfgBtn[hidden]{display:none}
     .hdr-tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
     .sync-pill{font-size:12px;font-weight:650;padding:7px 12px;border-radius:999px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);color:#fff}
     .sync-pill.ok{background:rgba(34,197,94,.3)}.sync-pill.err{background:rgba(239,68,68,.4)}.sync-pill.busy{background:rgba(250,204,21,.3)}
@@ -1826,6 +1827,7 @@
     document.addEventListener('visibilitychange', () => { if (!document.hidden && SB.url && !syncing) syncNow(); });
     setInterval(() => { if (SB.url && !syncing && !document.hidden) syncNow(); }, 60000);
     if (!SB.url) pill('off', 'Sin conectar');
+    $('cfgBtn').hidden = !/[?&]config\b/.test(location.search);
 
     // Inicialización: carga datos, aplica tema y restaura el último carné activo, pestaña y borradores
     load();
