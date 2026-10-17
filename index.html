@@ -1,0 +1,1643 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Pollitopromo | Carné digital</title>
+  <style>
+    :root {
+      --bg: #f3f7fb;
+      --text: #17324d;
+      --panel-bg: #ffffff;
+      --panel-border: #dce8ef;
+      --panel-shadow: rgba(24, 60, 88, 0.06);
+      --input-bg: #ffffff;
+      --input-border: #bacdd9;
+      --muted: #597487;
+      --btn-primary: #086f9c;
+      --btn-sec-bg: #e9f2f7;
+      --btn-sec-text: #144665;
+      --btn-danger: #a52f3c;
+      --table-border: #d8e4ec;
+      --table-th: #e7f4fa;
+      --photo-bg: #f5f9fc;
+      --photo-border: #abc5d5;
+      --notice-bg: #fff8df;
+      --notice-border: #e6b83d;
+      --notice-text: #17324d;
+      --header-grad: linear-gradient(110deg, #084b79, #1584ad);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+    }
+
+    [data-theme="dark"] {
+      --bg: #0f172a;
+      --text: #e2e8f0;
+      --panel-bg: #1e293b;
+      --panel-border: #334155;
+      --panel-shadow: rgba(0, 0, 0, 0.35);
+      --input-bg: #0f172a;
+      --input-border: #475569;
+      --muted: #94a3b8;
+      --btn-primary: #0284c7;
+      --btn-sec-bg: #334155;
+      --btn-sec-text: #f1f5f9;
+      --btn-danger: #dc2626;
+      --table-border: #334155;
+      --table-th: #0f172a;
+      --photo-bg: #0f172a;
+      --photo-border: #475569;
+      --notice-bg: #3b2f13;
+      --notice-border: #f59e0b;
+      --notice-text: #fef3c7;
+      --header-grad: linear-gradient(110deg, #092c48, #0c5472);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    header {
+      background: var(--header-grad);
+      color: white;
+      padding: 22px max(20px, calc((100vw - 1100px) / 2));
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 30px;
+    }
+
+    header p {
+      margin: 6px 0 0;
+      opacity: 0.92;
+    }
+
+    .theme-btn {
+      background: rgba(255, 255, 255, 0.16);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      padding: 9px 14px;
+      border-radius: 999px;
+      font-weight: 650;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      backdrop-filter: blur(4px);
+    }
+
+    .theme-btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    .wrap {
+      max-width: 1100px;
+      margin: 22px auto;
+      padding: 0 16px;
+    }
+
+    .panel {
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 18px;
+      box-shadow: 0 4px 18px var(--panel-shadow);
+    }
+
+    h2 {
+      font-size: 20px;
+      margin: 0 0 14px;
+    }
+
+    h3 {
+      margin: 0 0 10px;
+      font-size: 17px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 650;
+      margin-bottom: 5px;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      border: 1px solid var(--input-border);
+      border-radius: 8px;
+      padding: 10px;
+      font: inherit;
+      background: var(--input-bg);
+      color: var(--text);
+    }
+
+    textarea {
+      min-height: 74px;
+      resize: vertical;
+    }
+
+    .field {
+      min-width: 0;
+    }
+
+    .actions {
+      display: flex;
+      gap: 9px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-top: 14px;
+    }
+
+    button, .filebtn {
+      border: 0;
+      background: var(--btn-primary);
+      color: white;
+      border-radius: 9px;
+      padding: 10px 14px;
+      font: inherit;
+      font-weight: 650;
+      cursor: pointer;
+      display: inline-block;
+      transition: filter 0.15s ease;
+    }
+
+    button:hover, .filebtn:hover {
+      filter: brightness(1.08);
+    }
+
+    button.secondary, .filebtn.secondary {
+      background: var(--btn-sec-bg);
+      color: var(--btn-sec-text);
+    }
+
+    button.danger {
+      background: var(--btn-danger);
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .photo {
+      width: 140px;
+      height: 140px;
+      object-fit: cover;
+      border: 2px dashed var(--photo-border);
+      border-radius: 12px;
+      background: var(--photo-bg);
+    }
+
+    .top {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .top > div {
+      flex: 1;
+      min-width: 220px;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      font-size: 14px;
+    }
+
+    th, td {
+      border: 1px solid var(--table-border);
+      padding: 9px;
+      text-align: left;
+    }
+
+    th {
+      background: var(--table-th);
+    }
+
+    .scroll {
+      overflow: auto;
+    }
+
+    .notice {
+      background: var(--notice-bg);
+      color: var(--notice-text);
+      border-left: 4px solid var(--notice-border);
+      padding: 11px;
+      border-radius: 6px;
+      font-size: 13px;
+    }
+
+    .empty {
+      color: var(--muted);
+      text-align: center;
+      padding: 20px;
+    }
+
+    canvas {
+      width: 100%;
+      height: 250px;
+      border: 1px solid var(--table-border);
+      border-radius: 9px;
+      display: block;
+    }
+
+    #printSheet {
+      display: none;
+    }
+
+    .foot {
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+      padding: 10px 0 24px;
+    }
+
+    .toast-box {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-width: 350px;
+    }
+
+    .toast {
+      background: var(--panel-bg);
+      color: var(--text);
+      border: 1px solid var(--panel-border);
+      border-left: 5px solid var(--btn-primary);
+      padding: 12px 16px;
+      border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .toast.error {
+      border-left-color: var(--btn-danger);
+    }
+
+    .toast.success {
+      border-left-color: #10b981;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      padding: 16px;
+    }
+
+    .modal-backdrop[hidden] {
+      display: none !important;
+    }
+
+    .modal-card {
+      background: var(--panel-bg);
+      color: var(--text);
+      border: 1px solid var(--panel-border);
+      border-radius: 14px;
+      max-width: 420px;
+      width: 100%;
+      padding: 20px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .quick-bar {
+      display: grid;
+      grid-template-columns: 1.2fr 1.5fr 1fr 1fr auto;
+      gap: 10px;
+      align-items: end;
+      background: var(--btn-sec-bg);
+      padding: 14px;
+      border-radius: 12px;
+      margin-top: 12px;
+      border: 1px solid var(--panel-border);
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(245px, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .chick-card {
+      background: var(--input-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+      transition: transform 0.12s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .chick-card:hover {
+      border-color: var(--btn-primary);
+      transform: translateY(-2px);
+    }
+
+    .chick-card.active-card {
+      border: 2px solid var(--btn-primary);
+      box-shadow: 0 4px 14px var(--panel-shadow);
+    }
+
+    .chick-card-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .chick-card-head img {
+      width: 46px;
+      height: 46px;
+      border-radius: 10px;
+      object-fit: cover;
+      border: 1px solid var(--photo-border);
+      background: var(--photo-bg);
+      flex-shrink: 0;
+    }
+
+    .chick-card-title {
+      font-weight: 700;
+      font-size: 15px;
+      margin: 0;
+      word-break: break-word;
+    }
+
+    .chick-card-sub {
+      font-size: 12px;
+      color: var(--muted);
+      margin: 2px 0 0;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 650;
+      background: var(--table-th);
+      color: var(--text);
+    }
+
+    .tabs-bar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+      border-bottom: 2px solid var(--panel-border);
+      padding-bottom: 10px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .tabs-group {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      background: var(--btn-sec-bg);
+      color: var(--btn-sec-text);
+      border: 1px solid transparent;
+      padding: 9px 15px;
+      border-radius: 10px;
+      font-weight: 650;
+      cursor: pointer;
+    }
+
+    .tab-btn.active {
+      background: var(--btn-primary);
+      color: #ffffff;
+    }
+
+    @media (max-width: 820px) {
+      .quick-bar {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 680px) {
+      .grid, .three, .quick-bar {
+        grid-template-columns: 1fr;
+      }
+      header h1 {
+        font-size: 25px;
+      }
+    }
+
+    @page {
+      size: A4;
+      margin: 12mm;
+    }
+
+    @media print {
+      body {
+        background: white !important;
+        color: #15334c !important;
+      }
+      header, .wrap, .foot, .toast-box, .modal-backdrop {
+        display: none !important;
+      }
+      #printSheet {
+        display: block !important;
+        font-family: Arial, sans-serif;
+        font-size: 11pt;
+        color: #15334c;
+      }
+      #printSheet h1 {
+        color: #075e88;
+        font-size: 21pt;
+        margin: 0;
+      }
+      #printSheet h2 {
+        background: #e6f3fa;
+        color: #075e88;
+        padding: 6px;
+        font-size: 13pt;
+        margin: 14px 0 8px;
+      }
+      #printSheet .printhead {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        border-bottom: 3px solid #f1c94e;
+        padding-bottom: 12px;
+      }
+      #printSheet img.print-photo {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 8px;
+      }
+      #printSheet img.print-chart {
+        width: 100%;
+        max-height: 220px;
+        object-fit: contain;
+        border: 1px solid #d8e4ec;
+        border-radius: 6px;
+      }
+      #printSheet table {
+        font-size: 9pt;
+      }
+      #printSheet th, #printSheet td {
+        padding: 6px;
+        border: 1px solid #d8e4ec;
+      }
+      #printSheet th {
+        background: #e7f4fa;
+      }
+      #printSheet .note {
+        font-size: 9pt;
+        margin-top: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>🐣 Pollitopromo</h1>
+      <p>Carné digital de crecimiento y desarrollo · 30 días, una gran responsabilidad</p>
+    </div>
+    <button id="themeToggle" class="theme-btn" type="button" aria-label="Cambiar tema">
+      <span id="themeIcon">🌙</span>
+      <span id="themeText">Modo oscuro</span>
+    </button>
+  </header>
+
+  <main class="wrap">
+    <section class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+        <h2 style="margin:0;">📋 Registro rápido y directorio de pollitos</h2>
+        <div class="actions" style="margin:0;">
+          <button class="secondary" id="backup" type="button">Exportar respaldo (.json)</button>
+          <label class="filebtn secondary" for="restore">Importar (.json)</label>
+          <input type="file" id="restore" accept="application/json,.json" hidden>
+        </div>
+      </div>
+      <p class="muted" style="margin:8px 0 4px;">
+        <strong>Inscripción rápida en lote:</strong> Registra varios pollitos seguidos con sus datos básicos (el curso y la fecha se mantienen fijos para que no tengas que repetirlos). Luego podrás entrar a cualquiera para anotar controles de peso.
+      </p>
+
+      <div class="quick-bar">
+        <div class="field">
+          <label for="newName">Nombre del pollito *</label>
+          <input id="newName" maxlength="60" placeholder="Ej. Pío (Enter para agregar)">
+        </div>
+        <div class="field">
+          <label for="quickParents">Responsables (estudiantes)</label>
+          <input id="quickParents" maxlength="150" placeholder="Ej. Ana Pérez y Luis Gómez">
+        </div>
+        <div class="field">
+          <label for="quickGroup">Curso / Grupo (se mantiene)</label>
+          <input id="quickGroup" maxlength="60" placeholder="Ej. 9°A">
+        </div>
+        <div class="field">
+          <label for="quickStart">Fecha de inicio (se mantiene)</label>
+          <input type="date" id="quickStart">
+        </div>
+        <div class="field">
+          <button id="create" type="button" style="width:100%;white-space:nowrap;">+ Agregar a la lista</button>
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-top:16px;">
+        <div class="field" style="flex:1;min-width:220px;max-width:420px;">
+          <label for="pick">Seleccionar carné activo (<span id="totalCount">0</span> registrados)</label>
+          <select id="pick"></select>
+        </div>
+        <button class="secondary" id="toggleCardsBtn" type="button">Ver / Ocultar tarjetas del salón</button>
+      </div>
+
+      <div id="cardsContainer" class="cards-grid"></div>
+    </section>
+
+    <div id="editor" hidden>
+      <div class="tabs-bar">
+        <div class="tabs-group" role="tablist">
+          <button type="button" class="tab-btn active" id="tabBtnInfo" data-tab="info">1. Datos Generales</button>
+          <button type="button" class="tab-btn" id="tabBtnControls" data-tab="controls">2. Controles y Gráfica</button>
+          <button type="button" class="tab-btn" id="tabBtnReflection" data-tab="reflection">3. Reflexión e Impresión</button>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <button type="button" class="secondary" id="prevChickBtn" title="Ir al pollito anterior">◀ Anterior</button>
+          <strong id="activeChickBanner" style="font-size:15px;padding:0 6px;"></strong>
+          <button type="button" class="secondary" id="nextChickBtn" title="Ir al siguiente pollito">Siguiente ▶</button>
+        </div>
+      </div>
+
+      <section class="panel" id="tabPanelInfo">
+        <h2>1. Identificación y Datos Generales</h2>
+        <div class="top">
+          <img id="preview" class="photo" alt="Foto del pollito">
+          <div>
+            <label for="photo">Fotografía del pollito (opcional, puedes subirla hoy o más adelante)</label>
+            <input type="file" id="photo" accept="image/png,image/jpeg,image/webp">
+            <p class="muted">Evita fotografías con rostros o información personal de estudiantes.</p>
+          </div>
+        </div>
+        <div class="grid" style="margin-top:14px">
+          <div class="field">
+            <label for="name">Nombre del pollito</label>
+            <input id="name" maxlength="60">
+          </div>
+          <div class="field">
+            <label for="start">Fecha de inicio</label>
+            <input type="date" id="start">
+          </div>
+          <div class="field">
+            <label for="parents">Responsables del cuidado</label>
+            <input id="parents" maxlength="150" placeholder="Nombres o códigos de estudiantes">
+          </div>
+          <div class="field">
+            <label for="team">Equipo de seguimiento (pediatras simulados)</label>
+            <input id="team" maxlength="150">
+          </div>
+          <div class="field">
+            <label for="group">Curso o grupo</label>
+            <input id="group" maxlength="60">
+          </div>
+          <div class="field">
+            <label for="finalPlan">Responsable del animal después del día 30</label>
+            <input id="finalPlan" maxlength="150">
+          </div>
+        </div>
+        <div class="actions">
+          <button id="save" type="button">Guardar datos</button>
+          <button class="secondary" id="goToControlsBtn" type="button">Ir a controles de peso ⚖️</button>
+          <button id="print" class="secondary" type="button">Imprimir / PDF</button>
+          <button class="danger" id="remove" type="button">Eliminar este carné</button>
+          <span id="status" class="muted" role="status"></span>
+        </div>
+      </section>
+
+      <div id="tabPanelControls" hidden>
+        <section class="panel">
+          <h2>2. Registro de controles periódicos</h2>
+          <p class="muted">Controles sugeridos: días 1, 4, 7, 10, 13, 16, 19, 22, 25, 28 y 30. El peso es prioritario; la longitud es opcional y nunca debe medirse estirando al animal.</p>
+          <div class="grid three">
+            <div class="field">
+              <label for="day">Día del proyecto (1–30)</label>
+              <input id="day" type="number" min="1" max="30" step="1">
+            </div>
+            <div class="field">
+              <label for="weight">Peso (gramos)</label>
+              <input id="weight" type="number" min="0.1" max="10000" step="0.1">
+            </div>
+            <div class="field">
+              <label for="length">Longitud (cm, opcional)</label>
+              <input id="length" type="number" min="0.1" max="100" step="0.1">
+            </div>
+          </div>
+          <div class="grid" style="margin-top:12px">
+            <div class="field">
+              <label for="condition">Estado general / comportamiento</label>
+              <input id="condition" maxlength="120" placeholder="Ej. Activo, come y bebe normalmente">
+            </div>
+            <div class="field">
+              <label for="observer">Estudiante que realizó el control</label>
+              <input id="observer" maxlength="80">
+            </div>
+          </div>
+          <div class="field" style="margin-top:12px">
+            <label for="notes">Observaciones y recomendaciones</label>
+            <textarea id="notes" maxlength="600"></textarea>
+          </div>
+          <div class="actions">
+            <button id="add" type="button">Guardar control</button>
+            <button id="addAndNext" class="secondary" type="button">Guardar y pasar al siguiente pollito ▶</button>
+            <button class="secondary" id="clearControl" type="button">Limpiar formulario</button>
+            <span class="muted">Si registras de nuevo un mismo día, se actualizará ese control.</span>
+          </div>
+          <div class="scroll" style="margin-top:14px">
+            <table>
+              <thead>
+                <tr>
+                  <th>Día</th>
+                  <th>Peso (g)</th>
+                  <th>Longitud (cm)</th>
+                  <th>Estado</th>
+                  <th>Realizado por</th>
+                  <th>Observaciones</th>
+                  <th>Acción</th>
+                </tr>
+              </thead>
+              <tbody id="rows"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>3. Gráfica de crecimiento</h2>
+          <canvas id="chart" width="900" height="300" role="img" aria-label="Gráfica de peso por día"></canvas>
+          <p class="muted">Gráfica descriptiva de los registros reales, no una curva clínica de referencia. No sustituye la valoración veterinaria.</p>
+        </section>
+      </div>
+
+      <section class="panel" id="tabPanelReflection" hidden>
+        <h2>4. Reflexión y cierre (Día 30)</h2>
+        <label for="reflection">¿Qué aprendimos sobre la corresponsabilidad, la planificación y el cuidado?</label>
+        <textarea id="reflection" maxlength="2000" placeholder="Escribe una reflexión breve..."></textarea>
+        <div class="actions">
+          <button id="saveReflection" type="button">Guardar reflexión</button>
+          <button class="secondary" id="print2" type="button">Generar carné imprimible / PDF</button>
+        </div>
+        <div class="notice" style="margin-top:14px">
+          Bienestar animal: proporcionar alimento adecuado para la edad, agua permanente, alojamiento y temperatura apropiados, higiene y supervisión adulta. Lavarse las manos tras el contacto. No provocar situaciones de riesgo ni manipular repetidamente al pollito para simular consultas. Ante signos de enfermedad, acudir a un veterinario.
+        </div>
+      </section>
+    </div>
+
+    <section id="welcome" class="panel empty">
+      Usa la barra superior de <strong>Inscripción rápida en lote</strong> para registrar todos tus pollitos en segundos, o haz clic en cualquiera de las tarjetas para abrir su carné.
+    </section>
+  </main>
+
+  <div class="foot">Pollitopromo · Recurso educativo local · Los datos se guardan automáticamente en este navegador</div>
+
+  <div id="toastBox" class="toast-box" aria-live="polite"></div>
+
+  <div id="confirmModal" class="modal-backdrop" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+      <h3 id="confirmTitle">Confirmar acción</h3>
+      <p id="confirmMessage" class="muted" style="font-size:14px;"></p>
+      <div class="modal-actions">
+        <button type="button" class="secondary" id="confirmCancel">Cancelar</button>
+        <button type="button" class="danger" id="confirmOk">Confirmar</button>
+      </div>
+    </div>
+  </div>
+
+  <article id="printSheet">
+    <div class="printhead">
+      <div>
+        <h1>🐣 Carné de crecimiento y desarrollo</h1>
+        <p><strong>Proyecto:</strong> Pollitopromo · 30 días, una gran responsabilidad</p>
+        <p>Simulación pedagógica de maternidad y paternidad responsable</p>
+      </div>
+      <img id="pPhoto" class="print-photo" alt="Fotografía del pollito">
+    </div>
+    <h2>Datos de identificación</h2>
+    <table><tbody id="pInfo"></tbody></table>
+    <h2>Registro de controles (Días 1 a 30)</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Día</th>
+          <th>Peso (g)</th>
+          <th>Longitud (cm)</th>
+          <th>Estado general</th>
+          <th>Responsable del control</th>
+        </tr>
+      </thead>
+      <tbody id="pRows"></tbody>
+    </table>
+    <h2>Gráfica de crecimiento</h2>
+    <img id="pChart" class="print-chart" alt="Gráfica de crecimiento del pollito">
+    <h2>Observaciones de seguimiento</h2>
+    <div id="pNotes"></div>
+    <h2>Reflexión final (Día 30)</h2>
+    <p id="pReflection"></p>
+    <p class="note">Actividad educativa: los roles pediátricos son simulados; el cuidado real del pollito requiere criterios de bienestar animal y atención veterinaria cuando corresponda.</p>
+  </article>
+
+  <script>
+    'use strict';
+
+    const KEY = 'pollitocare_v1';
+    const ACTIVE_KEY = 'pollitocare_active_v1';
+    const THEME_KEY = 'pollitocare_theme_v1';
+    const DRAFT_KEY = 'pollitocare_draft_v1';
+    const TAB_KEY = 'pollitocare_tab_v1';
+
+    const $ = id => document.getElementById(id);
+    let db = [];
+    let active = null;
+    let activeTab = 'info';
+    let showCards = true;
+    let confirmResolver = null;
+
+    const fields = ['name', 'start', 'parents', 'team', 'group', 'finalPlan'];
+    const controlFields = ['day', 'weight', 'length', 'condition', 'observer', 'notes'];
+    const blank = {
+      name: '',
+      start: '',
+      parents: '',
+      team: '',
+      group: '',
+      finalPlan: '',
+      photo: '',
+      controls: [],
+      reflection: ''
+    };
+
+    function getLocalToday() {
+      const d = new Date();
+      const tzOffset = d.getTimezoneOffset() * 60000;
+      return new Date(d.getTime() - tzOffset).toISOString().slice(0, 10);
+    }
+
+    function notify(msg, type = 'info') {
+      const box = $('toastBox');
+      const item = document.createElement('div');
+      item.className = `toast ${type}`;
+      item.textContent = msg;
+      box.appendChild(item);
+      setTimeout(() => {
+        item.remove();
+      }, 3600);
+    }
+
+    function askConfirm(message) {
+      return new Promise(resolve => {
+        confirmResolver = resolve;
+        $('confirmMessage').textContent = message;
+        $('confirmModal').hidden = false;
+        $('confirmCancel').focus();
+      });
+    }
+
+    function closeConfirm(result) {
+      $('confirmModal').hidden = true;
+      if (confirmResolver) {
+        const r = confirmResolver;
+        confirmResolver = null;
+        r(result);
+      }
+    }
+
+    $('confirmCancel').onclick = () => closeConfirm(false);
+    $('confirmOk').onclick = () => closeConfirm(true);
+    $('confirmModal').addEventListener('click', e => {
+      if (e.target === $('confirmModal')) {
+        closeConfirm(false);
+      }
+    });
+    window.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && !$('confirmModal').hidden) {
+        closeConfirm(false);
+      }
+    });
+
+    function isDark() {
+      return document.documentElement.getAttribute('data-theme') === 'dark';
+    }
+
+    function applyTheme(theme) {
+      if (theme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        $('themeIcon').textContent = '☀️';
+        $('themeText').textContent = 'Modo claro';
+      } else {
+        document.documentElement.removeAttribute('data-theme');
+        $('themeIcon').textContent = '🌙';
+        $('themeText').textContent = 'Modo oscuro';
+      }
+      const x = current();
+      if (x && !x.photo) {
+        $('preview').src = placeholder();
+      }
+      renderCards();
+      draw();
+    }
+
+    function initTheme() {
+      let saved = null;
+      try {
+        saved = localStorage.getItem(THEME_KEY);
+      } catch {}
+      if (saved === 'dark' || saved === 'light') {
+        applyTheme(saved);
+      } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        applyTheme('dark');
+      } else {
+        applyTheme('light');
+      }
+    }
+
+    $('themeToggle').onclick = () => {
+      const next = isDark() ? 'light' : 'dark';
+      try {
+        localStorage.setItem(THEME_KEY, next);
+      } catch {}
+      applyTheme(next);
+    };
+
+    function placeholder(forceLight = false) {
+      const bg = (!forceLight && isDark()) ? '#1e293b' : '#eaf4f9';
+      return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(
+        `<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160"><rect width="160" height="160" fill="${bg}"/><text x="80" y="95" font-size="60" text-anchor="middle">🐣</text></svg>`
+      );
+    }
+
+    function sanitizeRecord(item) {
+      const controls = Array.isArray(item.controls) ? item.controls.slice() : [];
+      controls.sort((a, b) => Number(a.day) - Number(b.day));
+      return {
+        ...blank,
+        ...item,
+        controls
+      };
+    }
+
+    function load() {
+      try {
+        const d = JSON.parse(localStorage.getItem(KEY) || '[]');
+        db = Array.isArray(d) ? d.map(sanitizeRecord) : [];
+      } catch {
+        db = [];
+      }
+    }
+
+    function persist(showNotice = false) {
+      try {
+        localStorage.setItem(KEY, JSON.stringify(db));
+        if ($('status')) {
+          $('status').textContent = 'Guardado automáticamente ✓';
+        }
+        if (showNotice) {
+          notify('Cambios guardados en este navegador.', 'success');
+        }
+        return true;
+      } catch {
+        notify('No se pudo guardar. Espacio lleno; exporta una copia de seguridad.', 'error');
+        return false;
+      }
+    }
+
+    function saveDrafts() {
+      try {
+        const controlDraft = {};
+        controlFields.forEach(k => {
+          controlDraft[k] = $(k).value;
+        });
+        const draftPayload = {
+          newName: $('newName').value,
+          quickParents: $('quickParents').value,
+          quickGroup: $('quickGroup').value,
+          quickStart: $('quickStart').value,
+          activeId: active,
+          control: controlDraft
+        };
+        localStorage.setItem(DRAFT_KEY, JSON.stringify(draftPayload));
+      } catch {}
+    }
+
+    function restoreDrafts() {
+      try {
+        const today = getLocalToday();
+        $('quickStart').value = today;
+        const raw = localStorage.getItem(DRAFT_KEY);
+        if (!raw) return;
+        const draft = JSON.parse(raw);
+        if (draft && typeof draft === 'object') {
+          if (typeof draft.newName === 'string') $('newName').value = draft.newName;
+          if (typeof draft.quickParents === 'string') $('quickParents').value = draft.quickParents;
+          if (typeof draft.quickGroup === 'string') $('quickGroup').value = draft.quickGroup;
+          if (typeof draft.quickStart === 'string' && draft.quickStart) $('quickStart').value = draft.quickStart;
+          if (draft.control && draft.activeId === active) {
+            controlFields.forEach(k => {
+              if (typeof draft.control[k] === 'string') {
+                $(k).value = draft.control[k];
+              }
+            });
+          }
+        }
+      } catch {}
+    }
+
+    function switchTab(tabName) {
+      activeTab = ['info', 'controls', 'reflection'].includes(tabName) ? tabName : 'info';
+      try {
+        localStorage.setItem(TAB_KEY, activeTab);
+      } catch {}
+      $('tabPanelInfo').hidden = activeTab !== 'info';
+      $('tabPanelControls').hidden = activeTab !== 'controls';
+      $('tabPanelReflection').hidden = activeTab !== 'reflection';
+
+      $('tabBtnInfo').classList.toggle('active', activeTab === 'info');
+      $('tabBtnControls').classList.toggle('active', activeTab === 'controls');
+      $('tabBtnReflection').classList.toggle('active', activeTab === 'reflection');
+
+      if (activeTab === 'controls') {
+        draw();
+      }
+    }
+
+    ['tabBtnInfo', 'tabBtnControls', 'tabBtnReflection'].forEach(btnId => {
+      $(btnId).onclick = () => switchTab($(btnId).dataset.tab);
+    });
+
+    $('goToControlsBtn').onclick = () => switchTab('controls');
+
+    function current() {
+      return db.find(x => x.id === active);
+    }
+
+    function renderCards() {
+      const container = $('cardsContainer');
+      container.replaceChildren();
+      $('totalCount').textContent = String(db.length);
+      container.hidden = !showCards || db.length === 0;
+
+      db.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'chick-card' + (item.id === active ? ' active-card' : '');
+
+        const sortedCtrls = Array.isArray(item.controls)
+          ? [...item.controls].sort((a, b) => a.day - b.day)
+          : [];
+        const lastCtrl = sortedCtrls.length ? sortedCtrls[sortedCtrls.length - 1] : null;
+
+        const head = document.createElement('div');
+        head.className = 'chick-card-head';
+
+        const img = document.createElement('img');
+        img.src = item.photo || placeholder();
+        img.alt = item.name || 'Pollito';
+
+        const meta = document.createElement('div');
+        const title = document.createElement('p');
+        title.className = 'chick-card-title';
+        title.textContent = item.name || 'Sin nombre';
+
+        const sub = document.createElement('p');
+        sub.className = 'chick-card-sub';
+        sub.textContent = (item.group ? `[${item.group}] ` : '') + (item.parents || 'Sin responsables asignados');
+
+        meta.append(title, sub);
+        head.append(img, meta);
+
+        const stats = document.createElement('div');
+        stats.style.display = 'flex';
+        stats.style.gap = '6px';
+        stats.style.flexWrap = 'wrap';
+
+        const badgeCount = document.createElement('span');
+        badgeCount.className = 'badge';
+        badgeCount.textContent = `${sortedCtrls.length} control${sortedCtrls.length === 1 ? '' : 'es'}`;
+
+        const badgeWeight = document.createElement('span');
+        badgeWeight.className = 'badge';
+        badgeWeight.textContent = lastCtrl ? `Último: ${lastCtrl.weight} g (Día ${lastCtrl.day})` : 'Sin pesaje aún';
+
+        stats.append(badgeCount, badgeWeight);
+
+        const btnRow = document.createElement('div');
+        btnRow.style.display = 'flex';
+        btnRow.style.gap = '6px';
+
+        const btnEdit = document.createElement('button');
+        btnEdit.type = 'button';
+        btnEdit.className = 'secondary';
+        btnEdit.style.flex = '1';
+        btnEdit.style.padding = '7px 10px';
+        btnEdit.style.fontSize = '12px';
+        btnEdit.textContent = '📋 Datos';
+        btnEdit.onclick = () => {
+          select(item.id);
+          switchTab('info');
+        };
+
+        const btnCtrl = document.createElement('button');
+        btnCtrl.type = 'button';
+        btnCtrl.style.flex = '1';
+        btnCtrl.style.padding = '7px 10px';
+        btnCtrl.style.fontSize = '12px';
+        btnCtrl.textContent = '⚖️ + Control';
+        btnCtrl.onclick = () => {
+          select(item.id);
+          switchTab('controls');
+          $('weight').focus();
+        };
+
+        btnRow.append(btnEdit, btnCtrl);
+        card.append(head, stats, btnRow);
+        container.appendChild(card);
+      });
+    }
+
+    $('toggleCardsBtn').onclick = () => {
+      showCards = !showCards;
+      renderCards();
+    };
+
+    function selectList(rebuildCards = true) {
+      const old = active;
+      $('pick').replaceChildren(new Option('— Selecciona un pollito —', ''));
+      db.forEach(x => {
+        const label = (x.name || 'Sin nombre') + (x.group ? ` (${x.group})` : '') + (x.parents ? ` · ${x.parents}` : '');
+        $('pick').add(new Option(label, x.id));
+      });
+      if (db.some(x => x.id === old)) {
+        $('pick').value = old;
+      } else {
+        $('pick').value = '';
+      }
+      if (rebuildCards) {
+        renderCards();
+      }
+    }
+
+    function select(id, preserveControlInputs = false) {
+      const prevActive = active;
+      active = id && db.some(x => x.id === id) ? id : null;
+      try {
+        if (active) localStorage.setItem(ACTIVE_KEY, active);
+        else localStorage.removeItem(ACTIVE_KEY);
+      } catch {}
+
+      selectList(true);
+      const x = current();
+      $('editor').hidden = !x;
+      $('welcome').hidden = !!x;
+      if (!x) return;
+
+      if (prevActive !== null && prevActive !== active && !preserveControlInputs) {
+        resetControl();
+      }
+
+      const idx = db.findIndex(item => item.id === x.id);
+      $('activeChickBanner').textContent = `🐣 ${x.name} (${idx + 1} de ${db.length})`;
+      $('prevChickBtn').disabled = db.length <= 1;
+      $('nextChickBtn').disabled = db.length <= 1;
+
+      fields.forEach(k => $(k).value = x[k] || '');
+      $('preview').src = x.photo || placeholder();
+      $('reflection').value = x.reflection || '';
+      renderControls();
+      draw();
+      $('status').textContent = 'Sincronizado en este navegador ✓';
+    }
+
+    function stepChick(direction, preserveControlInputs = false) {
+      if (!db.length || !active) return;
+      const idx = db.findIndex(item => item.id === active);
+      if (idx === -1) return;
+      const nextIdx = (idx + direction + db.length) % db.length;
+      select(db[nextIdx].id, preserveControlInputs);
+    }
+
+    $('prevChickBtn').onclick = () => stepChick(-1);
+    $('nextChickBtn').onclick = () => stepChick(1);
+
+    ['newName', 'quickParents', 'quickGroup', 'quickStart'].forEach(k => {
+      $(k).addEventListener('input', saveDrafts);
+    });
+    controlFields.forEach(k => {
+      $(k).addEventListener('input', saveDrafts);
+    });
+
+    function createNewRecord() {
+      const name = $('newName').value.trim();
+      if (!name) {
+        $('newName').focus();
+        return notify('Escribe el nombre del nuevo pollito.', 'error');
+      }
+      const parents = $('quickParents').value.trim();
+      const group = $('quickGroup').value.trim();
+      const start = $('quickStart').value || getLocalToday();
+
+      const id = 'p' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
+      db.push({
+        ...blank,
+        id,
+        name,
+        parents,
+        group,
+        start,
+        controls: []
+      });
+
+      if (persist(false)) {
+        $('newName').value = '';
+        $('quickParents').value = '';
+        select(id);
+        saveDrafts();
+        $('newName').focus();
+        notify(`"${name}" registrado (${db.length} en total). Puedes escribir el siguiente.`, 'success');
+      }
+    }
+
+    $('create').onclick = createNewRecord;
+    ['newName', 'quickParents', 'quickGroup'].forEach(fieldId => {
+      $(fieldId).addEventListener('keydown', e => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          createNewRecord();
+        }
+      });
+    });
+
+    $('pick').onchange = e => select(e.target.value);
+
+    function saveFields(showToast = true) {
+      const x = current();
+      if (!x) return;
+      const newNameVal = $('name').value.trim();
+      if (!newNameVal) {
+        if (showToast) notify('Escribe el nombre del pollito.', 'error');
+        return;
+      }
+      fields.forEach(k => {
+        x[k] = $(k).value.trim();
+      });
+      if (persist(showToast)) {
+        selectList(true);
+        const idx = db.findIndex(item => item.id === x.id);
+        $('activeChickBanner').textContent = `🐣 ${x.name} (${idx + 1} de ${db.length})`;
+      }
+    }
+
+    fields.forEach(k => {
+      $(k).addEventListener('input', () => saveFields(false));
+    });
+
+    $('save').onclick = () => saveFields(true);
+
+    $('remove').onclick = async () => {
+      const x = current();
+      if (!x) return;
+      const ok = await askConfirm(`¿Eliminar definitivamente el carné de "${x.name}" y todos sus controles?`);
+      if (!ok) return;
+      db = db.filter(item => item.id !== active);
+      active = null;
+      persist(false);
+      selectList(true);
+      select(db.length ? db[0].id : null);
+      notify('Carné eliminado.', 'info');
+    };
+
+    $('photo').onchange = e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+        e.target.value = '';
+        return notify('Selecciona una imagen JPG, PNG o WebP.', 'error');
+      }
+      if (file.size > 12 * 1024 * 1024) {
+        e.target.value = '';
+        return notify('La imagen debe pesar menos de 12 MB.', 'error');
+      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        const im = new Image();
+        im.onload = () => {
+          const c = document.createElement('canvas');
+          const scale = Math.min(1, 650 / Math.max(im.width, im.height));
+          c.width = Math.round(im.width * scale);
+          c.height = Math.round(im.height * scale);
+          const ctx = c.getContext('2d');
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, c.width, c.height);
+          ctx.drawImage(im, 0, 0, c.width, c.height);
+          const x = current();
+          if (!x) return;
+          const old = x.photo;
+          x.photo = c.toDataURL('image/jpeg', 0.78);
+          if (!persist(true)) {
+            x.photo = old;
+          }
+          $('preview').src = x.photo || placeholder();
+          renderCards();
+          e.target.value = '';
+        };
+        im.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    };
+
+    function resetControl() {
+      controlFields.forEach(k => {
+        $(k).value = '';
+      });
+      saveDrafts();
+    }
+
+    $('clearControl').onclick = resetControl;
+
+    function saveControlEntry(moveToNext = false) {
+      const x = current();
+      if (!x) return;
+      const day = Number($('day').value);
+      const w = Number($('weight').value);
+      const len = $('length').value ? Number($('length').value) : null;
+
+      if (!Number.isInteger(day) || day < 1 || day > 30) {
+        return notify('Indica un día entero entre 1 y 30.', 'error');
+      }
+      if (!$('weight').value || !Number.isFinite(w) || w <= 0 || w > 10000) {
+        return notify('Introduce un peso válido en gramos.', 'error');
+      }
+      if (len !== null && (!Number.isFinite(len) || len <= 0 || len > 100)) {
+        return notify('Introduce una longitud válida o déjala vacía.', 'error');
+      }
+
+      const record = {
+        day,
+        weight: w,
+        length: len,
+        condition: $('condition').value.trim(),
+        observer: $('observer').value.trim(),
+        notes: $('notes').value.trim()
+      };
+
+      x.controls = x.controls.filter(c => c.day !== day);
+      x.controls.push(record);
+      x.controls.sort((a, b) => a.day - b.day);
+
+      if (persist(false)) {
+        renderControls();
+        renderCards();
+        draw();
+        const savedDay = $('day').value;
+        resetControl();
+        if (moveToNext && db.length > 1) {
+          stepChick(1, true);
+          $('day').value = savedDay;
+          saveDrafts();
+          $('weight').focus();
+          notify(`Control guardado. Pasando a "${current().name}".`, 'success');
+        } else {
+          notify(`Control del día ${day} guardado para "${x.name}".`, 'success');
+        }
+      }
+    }
+
+    $('add').onclick = () => saveControlEntry(false);
+    $('addAndNext').onclick = () => saveControlEntry(true);
+
+    function renderControls() {
+      const body = $('rows');
+      body.replaceChildren();
+      const x = current();
+      if (!x) return;
+      if (!x.controls.length) {
+        const tr = body.insertRow();
+        const td = tr.insertCell();
+        td.colSpan = 7;
+        td.textContent = 'Todavía no hay controles registrados.';
+        return;
+      }
+      x.controls.forEach(c => {
+        const tr = body.insertRow();
+        [c.day, c.weight, c.length ?? '—', c.condition || '—', c.observer || '—', c.notes || '—'].forEach(v => {
+          tr.insertCell().textContent = v;
+        });
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'secondary';
+        b.textContent = 'Editar';
+        b.onclick = () => {
+          $('day').value = c.day;
+          $('weight').value = c.weight;
+          $('length').value = c.length ?? '';
+          $('condition').value = c.condition || '';
+          $('observer').value = c.observer || '';
+          $('notes').value = c.notes || '';
+          saveDrafts();
+          window.scrollTo({
+            top: $('day').getBoundingClientRect().top + window.scrollY - 110,
+            behavior: 'smooth'
+          });
+        };
+        const del = document.createElement('button');
+        del.type = 'button';
+        del.className = 'danger';
+        del.textContent = '×';
+        del.title = 'Eliminar control';
+        del.onclick = async () => {
+          const ok = await askConfirm(`¿Eliminar el control del día ${c.day}?`);
+          if (ok) {
+            x.controls = x.controls.filter(v => v.day !== c.day);
+            persist(false);
+            renderControls();
+            renderCards();
+            draw();
+            notify(`Control del día ${c.day} eliminado.`, 'info');
+          }
+        };
+        const td = tr.insertCell();
+        td.append(b, ' ', del);
+      });
+    }
+
+    function draw(forceLight = false) {
+      const c = $('chart');
+      if (!c) return;
+      const ctx = c.getContext('2d');
+      const W = c.width;
+      const H = c.height;
+      const dark = !forceLight && isDark();
+
+      ctx.clearRect(0, 0, W, H);
+      ctx.fillStyle = dark ? '#0f172a' : '#ffffff';
+      ctx.fillRect(0, 0, W, H);
+
+      const pts = (current()?.controls || [])
+        .filter(v => Number.isFinite(v.weight))
+        .sort((a, b) => a.day - b.day);
+      ctx.font = '15px system-ui, Arial, sans-serif';
+      ctx.fillStyle = dark ? '#94a3b8' : '#547286';
+
+      if (!pts.length) {
+        ctx.fillText('Registra controles para visualizar la curva de crecimiento (Días 1 a 30).', 35, 70);
+        return;
+      }
+
+      const left = 68;
+      const right = W - 25;
+      const top = 24;
+      const bottom = H - 42;
+      const max = Math.max(50, ...pts.map(v => v.weight)) * 1.12;
+
+      ctx.strokeStyle = dark ? '#334155' : '#e2ebf1';
+      ctx.lineWidth = 1;
+      ctx.fillStyle = dark ? '#94a3b8' : '#58758a';
+
+      for (let i = 0; i <= 4; i++) {
+        const y = bottom - (bottom - top) * i / 4;
+        ctx.beginPath();
+        ctx.moveTo(left, y);
+        ctx.lineTo(right, y);
+        ctx.stroke();
+        ctx.fillText((max * i / 4).toFixed(0) + ' g', 8, y + 5);
+      }
+
+      for (const day of [1, 6, 12, 18, 24, 30]) {
+        const xx = left + (day - 1) / 29 * (right - left);
+        ctx.fillText(String(day), xx - 7, H - 17);
+      }
+      ctx.fillText('Día del proyecto (1–30)', W / 2 - 70, H - 2);
+
+      ctx.strokeStyle = dark ? '#38bdf8' : '#087ca8';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      pts.forEach((p, i) => {
+        const clampedDay = Math.min(30, Math.max(1, p.day));
+        const xx = left + (clampedDay - 1) / 29 * (right - left);
+        const yy = bottom - p.weight / max * (bottom - top);
+        if (i) ctx.lineTo(xx, yy);
+        else ctx.moveTo(xx, yy);
+      });
+      ctx.stroke();
+
+      pts.forEach(p => {
+        const clampedDay = Math.min(30, Math.max(1, p.day));
+        const xx = left + (clampedDay - 1) / 29 * (right - left);
+        const yy = bottom - p.weight / max * (bottom - top);
+        ctx.beginPath();
+        ctx.arc(xx, yy, 5, 0, Math.PI * 2);
+        ctx.fillStyle = '#efb92b';
+        ctx.fill();
+        ctx.strokeStyle = dark ? '#0284c7' : '#087ca8';
+        ctx.stroke();
+      });
+    }
+
+    $('reflection').addEventListener('input', () => {
+      const x = current();
+      if (x) {
+        x.reflection = $('reflection').value.trim();
+        persist(false);
+      }
+    });
+
+    $('saveReflection').onclick = () => {
+      const x = current();
+      if (x) {
+        x.reflection = $('reflection').value.trim();
+        persist(true);
+      }
+    };
+
+    function makePrint() {
+      saveFields(false);
+      const x = current();
+      if (!x) return;
+      x.reflection = $('reflection').value.trim();
+      persist(false);
+
+      $('pPhoto').src = x.photo || placeholder(true);
+      const labels = [
+        ['name', 'Nombre del pollito'],
+        ['start', 'Fecha de inicio'],
+        ['parents', 'Responsables del cuidado'],
+        ['team', 'Equipo de seguimiento'],
+        ['group', 'Curso o grupo'],
+        ['finalPlan', 'Responsable después del día 30']
+      ];
+      $('pInfo').replaceChildren();
+      labels.forEach(([k, label]) => {
+        const r = $('pInfo').insertRow();
+        r.insertCell().textContent = label;
+        r.insertCell().textContent = x[k] || '—';
+      });
+
+      $('pRows').replaceChildren();
+      if (!x.controls.length) {
+        const r = $('pRows').insertRow();
+        const td = r.insertCell();
+        td.colSpan = 5;
+        td.textContent = 'Sin controles registrados.';
+      } else {
+        x.controls.forEach(c => {
+          const r = $('pRows').insertRow();
+          [c.day, c.weight, c.length ?? '—', c.condition || '—', c.observer || '—'].forEach(v => {
+            r.insertCell().textContent = v;
+          });
+        });
+      }
+
+      draw(true);
+      $('pChart').src = $('chart').toDataURL('image/png');
+      draw(false);
+
+      $('pNotes').replaceChildren();
+      x.controls.forEach(c => {
+        if (c.notes) {
+          const p = document.createElement('p');
+          p.textContent = 'Día ' + c.day + ': ' + c.notes;
+          $('pNotes').append(p);
+        }
+      });
+      if (!$('pNotes').childNodes.length) {
+        $('pNotes').textContent = 'Sin observaciones registradas.';
+      }
+      $('pReflection').textContent = x.reflection || 'Pendiente de completar.';
+      window.print();
+    }
+
+    $('print').onclick = makePrint;
+    $('print2').onclick = makePrint;
+
+    $('backup').onclick = () => {
+      const blob = new Blob([JSON.stringify({
+        app: 'Pollitopromo',
+        version: 1,
+        exported: new Date().toISOString(),
+        records: db
+      }, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'Pollitopromo_respaldo_' + getLocalToday() + '.json';
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      notify('Copia de seguridad exportada.', 'success');
+    };
+
+    $('restore').onchange = async e => {
+      const f = e.target.files[0];
+      if (!f) return;
+      try {
+        if (f.size > 15 * 1024 * 1024) throw Error('Archivo demasiado grande.');
+        const obj = JSON.parse(await f.text());
+        const validApp = obj.app === 'Pollitopromo' || obj.app === 'PollitoCare';
+        if (
+          !validApp ||
+          !Array.isArray(obj.records) ||
+          obj.records.length > 300 ||
+          !obj.records.every(x =>
+            x &&
+            typeof x.id === 'string' &&
+            typeof x.name === 'string' &&
+            Array.isArray(x.controls) &&
+            x.controls.length <= 100 &&
+            x.controls.every(c => c && Number.isFinite(Number(c.day)) && Number.isFinite(Number(c.weight))) &&
+            (!x.photo || (typeof x.photo === 'string' && x.photo.startsWith('data:image/')))
+          )
+        ) {
+          throw Error('El archivo no es un respaldo válido de Pollitopromo.');
+        }
+        const ok = await askConfirm('Importar reemplazará todos los carnés guardados en este navegador. ¿Deseas continuar?');
+        if (!ok) return;
+        const old = db;
+        db = obj.records.map(sanitizeRecord);
+        if (!persist(false)) {
+          db = old;
+          return;
+        }
+        selectList(true);
+        select(db.length ? db[0].id : null);
+        notify('Respaldo importado correctamente.', 'success');
+      } catch (err) {
+        notify('No se pudo importar: ' + err.message, 'error');
+      } finally {
+        e.target.value = '';
+      }
+    };
+
+    // Inicialización: carga datos, aplica tema y restaura el último carné activo, pestaña y borradores
+    load();
+    initTheme();
+    let savedTab = 'info';
+    try {
+      savedTab = localStorage.getItem(TAB_KEY) || 'info';
+    } catch {}
+    switchTab(savedTab);
+    let savedActive = null;
+    try {
+      savedActive = localStorage.getItem(ACTIVE_KEY);
+    } catch {}
+    if (savedActive && db.some(x => x.id === savedActive)) {
+      select(savedActive);
+    } else if (db.length === 1) {
+      select(db[0].id);
+    } else {
+      select(null);
+    }
+    restoreDrafts();
+  </script>
+</body>
+</html>
